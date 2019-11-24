@@ -2,19 +2,29 @@ import processing.serial.*;
 import java.nio.*; 
 import java.util.*;
 
+
+Serial sp;
+
+ByteBuffer sb;
+
 Message msg;
 byte[] buff;
 
 void setup() {
+  
+  sp = new Serial(this, "COM23", 115200);
+  
+  sb = ByteBuffer.allocate(6);
+  
   msg = new Message();
   buff = new byte[6];
   
-  buff[0] = (byte)(0x80 + 40);
-  buff[1] = (byte)((2 << 4) | 0x04);
-  buff[2] = (byte)(0x23);
-  buff[3] = (byte)(0x04);
-  buff[4] = (byte)(0x00);
-  buff[5] = (byte)(0x00);
+  buff[0] = (byte)178;//(0x80 + 40);
+  buff[1] = (byte)36;//((2 << 4) | 0x04);
+  buff[2] = (byte)35;//(0x23);
+  buff[3] = (byte)4;//(0x04);
+  buff[4] = (byte)0;//(0x00);
+  buff[5] = (byte)0;//(0x00);
   
   println(msg.parse(buff));
   
@@ -24,8 +34,28 @@ void setup() {
   
 }
 
+byte in;
+
 void draw() {
+  if (sp.available() > 0) {
+    in = (byte)sp.read();
+    
+    if ((in & 0x80) == 0x80) {
+      println((byte)(in & 0x7F));
+    }
+    
+    /*
+    sp.readBytes(buff);
+    
+    println(msg.parse(buff));
   
+    println(msg.getAddress());
+    println(msg.getEvent());
+    println(msg.getData());
+    //sb.put(buff);
+    //sb.rewind();
+    */
+  }
 }
 
 enum Event {
